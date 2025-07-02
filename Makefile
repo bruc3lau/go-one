@@ -2,6 +2,9 @@
 APP_NAME := go-one
 VERSION := 1.0.0
 
+# 明确指定默认目标
+.DEFAULT_GOAL := build
+
 # 获取当前系统信息
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
