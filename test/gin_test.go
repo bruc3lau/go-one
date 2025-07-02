@@ -1,20 +1,22 @@
-package main
+package test_test
 
 import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go-one/internal/router"
 )
 
 func TestPingRoute(t *testing.T) {
 	// 获取路由
-	router := setupRouter()
+	r := router.SetupRouter()
 
 	// 创建一个测试请求记录器
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 
 	// 断言状态码是200
 	if w.Code != http.StatusOK {
@@ -36,12 +38,12 @@ func TestPingRoute(t *testing.T) {
 
 func TestHelloRoute(t *testing.T) {
 	// 获取路由
-	router := setupRouter()
+	r := router.SetupRouter()
 
 	// 创建一个测试请求记录器
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/hello", nil)
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 
 	// 断言状态码是200
 	if w.Code != http.StatusOK {
