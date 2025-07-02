@@ -92,6 +92,11 @@ package-darwin: $(DARWIN_TARGETS)
 	tar -czf $(RELEASE_DIR)/$(APP_NAME)-$(VERSION)-darwin-amd64.tar.gz -C $(BUILD_DIR) $(APP_NAME)-darwin-amd64
 	tar -czf $(RELEASE_DIR)/$(APP_NAME)-$(VERSION)-darwin-arm64.tar.gz -C $(BUILD_DIR) $(APP_NAME)-darwin-arm64
 ifeq ($(UNAME_S),Darwin)
+	@echo "创建 macOS 通用二进制文件..."
+	lipo -create -output $(BUILD_DIR)/$(APP_NAME)-darwin-universal \
+		$(BUILD_DIR)/$(APP_NAME)-darwin-amd64 \
+		$(BUILD_DIR)/$(APP_NAME)-darwin-arm64
+	@echo "打包 macOS 通用二进制文件..."
 	tar -czf $(RELEASE_DIR)/$(APP_NAME)-$(VERSION)-darwin-universal.tar.gz -C $(BUILD_DIR) $(APP_NAME)-darwin-universal
 endif
 
