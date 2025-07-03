@@ -5,16 +5,53 @@ import (
 	"fmt"
 	"go-one/internal/models"
 	"gorm.io/gorm"
+	"time"
 )
 
 // TransactionFunc 定义事务中要执行的函数类型
 type TransactionFunc func(tx *gorm.DB) error
+
+// TransactionPropagation 事务传播行为
+type TransactionPropagation int
+
+const (
+	// PropagationRequired 如果当前没有事务，就新建一个事务；如果已经存在一个事务，加入到这个事务中
+	PropagationRequired TransactionPropagation = iota
+	// PropagationRequiresNew 新建事务，如果当前存在事务，把当前事务挂起
+	PropagationRequiresNew
+	// PropagationNested 如果当前存在事务，则在嵌套事务内执行；如果当前没有事务，则按PropagationRequired执行
+	PropagationNested
+)
+
+// TransactionOption 事务选项
+type TransactionOption struct {
+	Propagation TransactionPropagation
+	Timeout     time.Duration
+}
 
 // WithTransaction 事务管理器，类似 Spring 的 @Transactional
 func WithTransaction(ctx context.Context, fn TransactionFunc) error {
 	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return fn(tx)
 	})
+}
+
+// WithTransactionPropagation 支持事务传播行为的事务管理器
+func WithTransactionPropagation(ctx context.Context, opt TransactionOption, fn TransactionFunc) error {
+	// 获取当前上下文中的事务
+	if tx, ok := ctx.Value("tx").(*gorm.DB); ok {
+		switch opt.Propagation {
+		case PropagationRequired:
+			return fn(tx)
+		case PropagationRequiresNew:
+			return DB.WithContext(ctx).Transaction(fn)
+		case PropagationNested:
+			return tx.SavePoint("sp1").Transaction(fn)
+		}
+	}
+
+	// 如果没有现有事务，创建新事务
+	return DB.WithContext(ctx).Transaction(fn)
 }
 
 // 示例：带事务的用户服务方法
@@ -62,6 +99,17 @@ func (s *UserService) BatchCreateUsers(ctx context.Context, users []models.User)
 				return err // 任何错误都会触发回滚
 			}
 		}
+		return nil
+	})
+}
+
+// 使用示例：带传播行为的服务方法
+func (s *UserService) ComplexOperation(ctx context.Context, userID uint) error {
+	return WithTransactionPropagation(ctx, TransactionOption{
+		Propagation: PropagationRequired,
+		Timeout:     time.Second * 10,
+	}, func(tx *gorm.DB) error {
+		// 在事务中执行操作
 		return nil
 	})
 }
