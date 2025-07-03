@@ -7,8 +7,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
-	"os"
 	"time"
 )
 
@@ -16,18 +14,16 @@ var DB *gorm.DB
 
 func InitDB() error {
 	dsn := "root:admin@tcp(127.0.0.1:3306)/go_one?charset=utf8mb4&parseTime=True&loc=Local"
+
+	// 使用自定义的 JSON 日志记录器
+	jsonLogger := NewJSONLogger(logger.Config{
+		SlowThreshold:             time.Second,
+		LogLevel:                  logger.Info,
+		IgnoreRecordNotFoundError: false,
+	})
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		// 设置详细的日志级别
-		Logger: logger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags), // 输出到标准输出
-			logger.Config{
-				SlowThreshold:             time.Second, // 慢 SQL 阈值
-				LogLevel:                  logger.Info, // 设置日志级别为 Info
-				IgnoreRecordNotFoundError: false,       // 不忽略 ErrRecordNotFound 错误
-				Colorful:                  true,        // 彩色输出
-			},
-		),
-		// 添加命名策略
+		Logger: jsonLogger,
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // 使用单数表名
 		},
