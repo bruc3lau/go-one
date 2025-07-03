@@ -65,30 +65,42 @@ func NewUserService(db *gorm.DB) *UserService {
 
 // TransferPoints 用户积分转账示例，演示事务使用
 func (s *UserService) TransferPoints(ctx context.Context, fromUserID, toUserID uint, points int) error {
+	// 获取当前上下文中的事务
+	if tx, ok := ctx.Value("tx").(*gorm.DB); ok {
+		// 使用现有事务
+		return s.transferPointsWithTx(tx, fromUserID, toUserID, points)
+	}
+
+	// 如果上下文中没有事务，创建新事务
 	return WithTransaction(ctx, func(tx *gorm.DB) error {
-		// 1. 检查并扣减支出方积分
-		var fromUser models.User
-		if err := tx.First(&fromUser, fromUserID).Error; err != nil {
-			return err
-		}
-		if fromUser.Points < points {
-			return fmt.Errorf("用户积分不足")
-		}
-		if err := tx.Model(&fromUser).Update("points", fromUser.Points-points).Error; err != nil {
-			return err
-		}
-
-		// 2. 增加接收方积分
-		var toUser models.User
-		if err := tx.First(&toUser, toUserID).Error; err != nil {
-			return err
-		}
-		if err := tx.Model(&toUser).Update("points", toUser.Points+points).Error; err != nil {
-			return err
-		}
-
-		return nil
+		return s.transferPointsWithTx(tx, fromUserID, toUserID, points)
 	})
+}
+
+// transferPointsWithTx 使用指定事务执行积分转账
+func (s *UserService) transferPointsWithTx(tx *gorm.DB, fromUserID, toUserID uint, points int) error {
+	// 1. 检查并扣减支出方积分
+	var fromUser models.User
+	if err := tx.First(&fromUser, fromUserID).Error; err != nil {
+		return err
+	}
+	if fromUser.Points < points {
+		return fmt.Errorf("用户积分不足")
+	}
+	if err := tx.Model(&fromUser).Update("points", fromUser.Points-points).Error; err != nil {
+		return err
+	}
+
+	// 2. 增加接收方积分
+	var toUser models.User
+	if err := tx.First(&toUser, toUserID).Error; err != nil {
+		return err
+	}
+	if err := tx.Model(&toUser).Update("points", toUser.Points+points).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // BatchCreateUsers 批量创建用户示例

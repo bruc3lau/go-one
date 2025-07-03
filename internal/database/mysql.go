@@ -49,10 +49,10 @@ func InitDB() error {
 	fmt.Println("开始执行数据库迁移...")
 
 	// 删除已存在的表（仅开发环境使用）
-	//err = db.Migrator().DropTable(&models.User{})
-	//if err != nil {
-	//	fmt.Printf("删除表失败: %v\n", err)
-	//}
+	err = db.Migrator().DropTable(&models.User{})
+	if err != nil {
+		fmt.Printf("删除表失败: %v\n", err)
+	}
 
 	// 自动迁移
 	err = db.AutoMigrate(
