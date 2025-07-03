@@ -4,15 +4,40 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 	"time"
 )
 
 // 模拟一个共享变量
 var counter int
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
+func init() {
+	// 根据环境变量设置 gin 模式
+	mode := os.Getenv("GIN_MODE")
+	if mode == "" {
+		mode = os.Getenv("GO_ENV") // 如果没有设置 GIN_MODE，则查看 GO_ENV
+	}
 
+	switch mode {
+	case "production", "prod":
+		gin.SetMode(gin.ReleaseMode)
+	case "test":
+		gin.SetMode(gin.TestMode)
+	default:
+		gin.SetMode(gin.DebugMode)
+		//gin.SetMode(gin.ReleaseMode)
+	}
+}
+
+func SetupRouter() *gin.Engine {
+	// 使用 gin.New() 替代 gin.Default()
+	r := gin.New()
+
+	// 手动添加中间件
+	r.Use(gin.Logger())   // 添加日志中间件
+	r.Use(gin.Recovery()) // 添加恢复中间件
+
+	// 路由配置
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
