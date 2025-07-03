@@ -8,6 +8,7 @@ CREATE TABLE `users`
     `email`      varchar(255) DEFAULT NULL,
     `age`        int          DEFAULT NULL,
     `is_active`  tinyint(1)   DEFAULT '1',
+    `points`     int          DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_users_email` (`email`),
     KEY `idx_users_deleted_at` (`deleted_at`)
