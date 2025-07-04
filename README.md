@@ -73,3 +73,16 @@ go mod graph | grep gin                      # 查看与 gin 相关的依赖图
 ```
 
 ---
+```text
+# 单次编译使用
+go build -mod=vendor cmd/main.go
+# 或运行时使用
+go run -mod=vendor cmd/main.go
+# 查看构建详情
+go build -mod=vendor -x cmd/main.go
+
+# 更新或创建 vendor 目录
+go mod vendor
+# 验证 vendor 目录
+go mod verify
+```

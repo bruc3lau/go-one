@@ -2,6 +2,9 @@
 APP_NAME := go-one
 VERSION := 1.0.0
 
+# 设置 Go 编译标志
+GOFLAGS := -mod=vendor
+
 # 明确指定默认目标
 .DEFAULT_GOAL := build
 
