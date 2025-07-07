@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // weiToEth 将 Wei 转换为 ETH
@@ -18,20 +17,19 @@ func weiToEth(wei *big.Int) *big.Float {
 	return ethValue
 }
 
-func main() {
+func test1() {
 
-	fmt.Println("程序启动成功！")
-	fmt.Printf("Infura Project ID: %s\n", AppConfig.InfuraProjectID)
-
-	fmt.Println("连接到 Sepolia 测试网络...")
-	// 使用 fmt.Sprintf 从配置中动态构建 Infura URL
-	infuraURL := fmt.Sprintf("https://sepolia.infura.io/v3/%s", AppConfig.InfuraProjectID)
-	client, err := ethclient.Dial(infuraURL)
-
-	if err != nil {
-		log.Fatal("连接失败:", err)
-	}
-	fmt.Println("连接成功！")
+	//fmt.Println("程序启动成功！")
+	//fmt.Printf("Infura Project ID: %s\n", AppConfig.InfuraProjectID)
+	//
+	//fmt.Println("连接到 Sepolia 测试网络...")
+	//// 使用 fmt.Sprintf 从配置中动态构建 Infura URL
+	//infuraURL := fmt.Sprintf("https://sepolia.infura.io/v3/%s", AppConfig.InfuraProjectID)
+	//client, err := ethclient.Dial(infuraURL)
+	//if err != nil {
+	//	log.Fatal("连接失败:", err)
+	//}
+	//fmt.Println("连接成功！")
 
 	// 获取最新区块号
 	header, err := client.HeaderByNumber(context.Background(), nil)
@@ -68,4 +66,18 @@ func main() {
 		block.Hash().Hex(),
 		len(block.Transactions()),
 	)
+}
+
+func QueryBlock() {
+	// 这里可以添加查询区块的逻辑
+
+}
+
+func init() {
+	fmt.Println(666)
+}
+func main() {
+	test1()
+
+	//common.BytesToAddress()
 }
