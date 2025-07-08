@@ -40,7 +40,9 @@ func test1() {
 
 	// 获取账户余额
 	//account := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
-	account := common.HexToAddress("0x35E1f780604C869Af0a9f94399B842244a5A6676")
+	//account := common.HexToAddress("0x35E1f780604C869Af0a9f94399B842244a5A6676")
+
+	account := common.HexToAddress("0xf08C0a03792Dd0043107046Cb799a382ca3b5ba5")
 	balance, err := client.BalanceAt(context.Background(), account, nil)
 	if err != nil {
 		log.Fatal("获取余额失败:", err)
@@ -68,16 +70,28 @@ func test1() {
 	)
 }
 
+func test2() {
+
+	account := common.HexToAddress("0xf08C0a03792Dd0043107046Cb799a382ca3b5ba5")
+	balance, err := client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		log.Fatal("获取余额失败:", err)
+	}
+	ethBalance := weiToEth(balance)
+	fmt.Printf("\n2. 账户信息:\n   地址: %s\n   余额: %s ETH (%s Wei)\n", account.Hex(), ethBalance.String(), balance.String())
+
+}
+
 func QueryBlock() {
 	// 这里可以添加查询区块的逻辑
 
 }
 
 func init() {
-	fmt.Println(666)
+	//fmt.Println(666)
 }
 func main() {
-	test1()
-
 	//common.BytesToAddress()
+	//test1()
+	test2()
 }
