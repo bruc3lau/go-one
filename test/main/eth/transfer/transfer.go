@@ -41,7 +41,7 @@ func main1() {
 	}
 }
 
-func main() {
+func main2() {
 	// --- 1. Configuration (Replace with your details) ---
 
 	// You can get a free ID from https://infura.io
@@ -139,4 +139,89 @@ func sendTestTransaction(client *ethclient.Client, senderPrivateKeyHex string) e
 	fmt.Printf("    - View on Etherscan: https://sepolia.etherscan.io/tx/%s\n", signedTx.Hash().Hex())
 
 	return nil
+}
+
+// New main function to demonstrate other API calls
+func main() {
+	infuraProjectID := os.Getenv("INFURA_PROJECT_ID")
+	if infuraProjectID == "" {
+		log.Fatal("INFURA_PROJECT_ID environment variable not set.")
+	}
+
+	infuraURL := fmt.Sprintf("https://sepolia.infura.io/v3/%s", infuraProjectID)
+	client, err := ethclient.Dial(infuraURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
+	}
+	fmt.Println("✅ Successfully connected to Sepolia network!")
+
+	fmt.Println("\n--- Demonstrating Other Ethereum API Calls ---")
+
+	// 1. Get Latest Block Number
+	getLatestBlockNumber(client)
+
+	// 2. Get Block Details (using the latest block number)
+	// For demonstration, let's get details of the latest block.
+	// In a real scenario, you might fetch a specific block by its number or hash.
+	latestBlock, err := client.BlockByNumber(context.Background(), nil) // nil for latest
+	if err != nil {
+		log.Printf("Failed to get latest block for details: %v", err)
+	} else {
+		getBlockDetails(client, latestBlock.Number())
+	}
+
+	// 3. Get Account Balance
+	// Use a well-known address on Sepolia with some ETH for demonstration
+	// This is a random address, replace with one you know has funds on Sepolia if needed.
+	demoAddress := common.HexToAddress("0x742d35Cc6634C0532925a3b844Bc454e4438f44e") // Example address
+	getAccountBalance(client, demoAddress)
+
+	fmt.Println("\n--- End of API Call Demonstrations ---")
+}
+
+// getLatestBlockNumber fetches and prints the latest block number.
+func getLatestBlockNumber(client *ethclient.Client) {
+	header, err := client.HeaderByNumber(context.Background(), nil) // nil for latest block
+	if err != nil {
+		log.Printf("❌ Failed to get latest block header: %v", err)
+		return
+	}
+	fmt.Printf("\n--- Latest Block Number ---\n")
+	fmt.Printf("    - Latest Block Number: %d\n", header.Number.Uint64())
+}
+
+// getBlockDetails fetches and prints details of a specific block.
+func getBlockDetails(client *ethclient.Client, blockNumber *big.Int) {
+	block, err := client.BlockByNumber(context.Background(), blockNumber)
+	if err != nil {
+		log.Printf("❌ Failed to get block details for block %s: %v", blockNumber.String(), err)
+		return
+	}
+
+	fmt.Printf("\n--- Block Details (Block #%s) ---\n", block.Number().String())
+	fmt.Printf("    - Block Hash: %s\n", block.Hash().Hex())
+	fmt.Printf("    - Time: %d\n", block.Time())
+	fmt.Printf("    - Nonce: %d\n", block.Nonce())
+	fmt.Printf("    - Transactions in Block: %d\n", len(block.Transactions()))
+	fmt.Printf("    - Gas Used: %d\n", block.GasUsed())
+	fmt.Printf("    - Gas Limit: %d\n", block.GasLimit())
+	fmt.Printf("    - Miner: %s\n", block.Coinbase().Hex())
+}
+
+// getAccountBalance fetches and prints the balance of a given Ethereum address.
+func getAccountBalance(client *ethclient.Client, address common.Address) {
+	balance, err := client.BalanceAt(context.Background(), address, nil) // nil for latest block
+	if err != nil {
+		log.Printf("❌ Failed to get balance for address %s: %v", address.Hex(), err)
+		return
+	}
+
+	// Convert Wei to ETH for display
+	fbalance := new(big.Float)
+	fbalance.SetString(balance.String())
+	ethValue := new(big.Float).Quo(fbalance, big.NewFloat(1e18))
+
+	fmt.Printf("\n--- Account Balance ---\n")
+	fmt.Printf("    - Address: %s\n", address.Hex())
+	fmt.Printf("    - Balance: %s ETH\n", ethValue.String())
 }
