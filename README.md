@@ -93,3 +93,52 @@ go mod vendor
 go mod verify
 ```
 
+---
+grpc
+> 1.创建一个 .proto 文件来定义服务
+> pkg/grpc/helloworld/helloworld.proto
+```text
+syntax = "proto3";                                                                                                                                                                            │
+                                                                                                                                                                                              │
+option go_package = "go-one/pkg/grpc/helloworld";                                                                                                                                             │
+                                                                                                                                                                                              │
+package helloworld;                                                                                                                                                                           │
+                                                                                                                                                                                              │
+// The greeting service definition.                                                                                                                                                           │
+service Greeter {                                                                                                                                                                             │
+  // Sends a greeting                                                                                                                                                                         │
+  rpc SayHello (HelloRequest) returns (HelloReply) {}                                                                                                                                         │
+}                                                                                                                                                                                             │
+                                                                                                                                                                                              │
+// The request message containing the user's name.                                                                                                                                            │
+message HelloRequest {                                                                                                                                                                        │
+  string name = 1;                                                                                                                                                                            │
+}                                                                                                                                                                                             │
+                                                                                                                                                                                              │
+// The response message containing the greetings                                                                                                                                              │
+message HelloReply {                                                                                                                                                                          │
+  string message = 1;                                                                                                                                                                         │
+}
+```
+> 2.安装 protoc 编译器和 Go gRPC 插件来生成 Go 代码。使用 go get 来安装这些工具
+```shell
+ go get -u google.golang.org/protobuf/cmd/protoc-gen-go                                       
+
+```
+> 3.使用 protoc 编译器生成 Go 代码
+ ```shell
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative pkg/grpc/helloworld/helloworld.proto                   
+
+```
+> 4.实现 gRPC 服务
+```text
+   1. 启动服务器
+      打开一个新的终端并运行以下命令：
+
+   go run pkg/grpc/server/main.go
+
+   2. 运行客户端
+      打开另一个终端并运行以下命令：
+
+   go run pkg/grpc/client/main.go
+```
