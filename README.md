@@ -142,3 +142,8 @@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=p
 
    go run pkg/grpc/client/main.go
 ```
+> 5.测试 gRPC 服务
+```text
+ pip install grpcio grpcio-tools
+ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./pkg/grpc/helloworld/helloworld.proto
+```
