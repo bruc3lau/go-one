@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package simplepubsub;
+
+option go_package = "go-one/simplepubsub";
+
+// 一个简单的发布服务
+service Publisher {
+  // 客户端调用此方法进行订阅，服务端会以流的形式返回消息
+  rpc Subscribe(ClientInfo) returns (stream Message) {}
+}
+
+// 客户端信息
+message ClientInfo {
+  string client_id = 1;
+}
+
+// 服务端发送的消息
+message Message {
+  string content = 1;
+}
