@@ -147,3 +147,7 @@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=p
  pip install grpcio grpcio-tools
  python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./pkg/grpc/helloworld/helloworld.proto
 ```
+```text
+go run ./pkg/pubsub/server/main.go
+go run ./pkg/pubsub/client/main.go
+```

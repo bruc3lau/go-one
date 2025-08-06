@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pubsub;
+
+option go_package = "go-one/pkg/pubsub";
+
+// The publish-subscribe service definition.
+service PubSubService {
+  // Subscribe to a topic to receive a stream of messages.
+  rpc Subscribe(SubscribeRequest) returns (stream Message) {}
+  // Publish a message to a topic.
+  rpc Publish(PublishRequest) returns (PublishResponse) {}
+}
+
+// The request message for subscribing to a topic.
+message SubscribeRequest {
+  string topic = 1;
+}
+
+// The message that is published and sent to subscribers.
+message Message {
+  string topic = 1;
+  string content = 2;
+}
+
+// The request message for publishing a message.
+message PublishRequest {
+  string topic = 1;
+  string content = 2;
+}
+
+// The response message after publishing.
+message PublishResponse {
+  bool success = 1;
+}
