@@ -3,6 +3,7 @@ package bus
 import (
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -59,7 +60,7 @@ func TestSingleProducerConsumerPerform(t *testing.T) {
 	wg.Wait()
 	end := time.Now().UnixNano()
 	duration := end - start
-	durationInMil := duration / 1000000
+	durationInMil := duration / 1e6
 	fmt.Println("the time consumed for 10000 produce/consume is ", durationInMil, " millisecond")
 	if durationInMil > 1000 {
 		t.Error("10000 produce/consume more than 1 second")
@@ -67,43 +68,71 @@ func TestSingleProducerConsumerPerform(t *testing.T) {
 	}
 }
 
-type TwoParallelConsumer struct {
+type CorrectTwoParallelConsumer struct {
 	name  string
-	count int
+	count uint64 // 使用原子操作支持的类型
+	wg    *sync.WaitGroup
 }
 
-func (c *TwoParallelConsumer) HandleMessage(topic string, message interface{}, isParallel bool) bool {
-	lock.Lock()
-	c.count++
-	lock.Unlock()
+func (c *CorrectTwoParallelConsumer) HandleMessage(topic string, message interface{}, isParallel bool) bool {
+	// 原子地将 count 加一，这是并发安全的
+	atomic.AddUint64(&c.count, 1)
+	c.wg.Done() // 每处理完一条消息，就通知 WaitGroup
 	return false
 }
 
 func TestSingleProducerTwoConsumer(t *testing.T) {
+
 	topic := "SingleProducerTwoConsumer"
+
 	CreateTopic(topic)
-	consumer1 := &TwoParallelConsumer{
-		name: "consumer1",
-	}
-	consumer2 := &TwoParallelConsumer{
-		name: "consumer2",
-	}
-	RegisterParallelTopicConsumer(topic, consumer1)
-	RegisterParallelTopicConsumer(topic, consumer2)
+
 	n := 1000
-	go func() {
-		for i := 0; i < n; i++ {
-			Produce(topic, "test")
-		}
-	}()
-	time.Sleep(100 * time.Millisecond)
-	fmt.Println("consumer 1 count ", consumer1.count)
-	fmt.Println("consumer 2 count ", consumer2.count)
-	if consumer1.count != n {
-		t.Error("consumer1 does not consumer 1000 messages")
+
+	var wg sync.WaitGroup // 使用 WaitGroup 进行可靠同步
+
+	consumer1 := &CorrectTwoParallelConsumer{
+		name: "consumer1",
+		wg:   &wg,
 	}
-	if consumer2.count != n {
-		t.Error("consumer2 does not consumer 1000 messages")
+
+	consumer2 := &CorrectTwoParallelConsumer{
+		name: "consumer2",
+		wg:   &wg,
+	}
+
+	RegisterParallelTopicConsumer(topic, consumer1)
+
+	RegisterParallelTopicConsumer(topic, consumer2)
+
+	// 因为有 2 个消费者，每个都会处理 n 条消息，所以总共要等待 2*n 次 Done()
+
+	wg.Add(n * 2)
+
+	// 生产消息
+
+	for i := 0; i < n; i++ {
+
+		Produce(topic, "test")
+
+	}
+
+	// 等待所有消息都被两个消费者处理完毕
+	wg.Wait()
+
+	// 读取最终结果，此时是完全安全的
+	count1 := atomic.LoadUint64(&consumer1.count)
+	count2 := atomic.LoadUint64(&consumer2.count)
+
+	fmt.Println("consumer 1 count ", count1)
+	fmt.Println("consumer 2 count ", count2)
+
+	if count1 != uint64(n) {
+		t.Errorf("consumer1 count is %d, want %d", count1, n)
+	}
+
+	if count2 != uint64(n) {
+		t.Errorf("consumer2 count is %d, want %d", count2, n)
 	}
 }
 
@@ -185,7 +214,7 @@ func TestPointerAndStructMessage(t *testing.T) {
 	wg.Done()
 	wg.Wait()
 	end := time.Now().UnixNano()
-	fmt.Println("the time for 10000 struct message is ", (end-begin)/1000000, " ms")
+	fmt.Println("the time for 10000 struct message is ", (end-begin)/1e6, " ms")
 
 	wg.Add(2)
 	begin = time.Now().UnixNano()
@@ -196,7 +225,7 @@ func TestPointerAndStructMessage(t *testing.T) {
 	wg.Done()
 	wg.Wait()
 	end = time.Now().UnixNano()
-	fmt.Println("the time for 10000 pointer message is ", (end-begin)/1000000, " ms")
+	fmt.Println("the time for 10000 pointer message is ", (end-begin)/1e6, " ms")
 }
 
 type SerialReturnConsumer1 struct {
