@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/miguelmota/go-ethereum-hdwallet v0.1.3
 	github.com/panjf2000/ants/v2 v2.11.3
+	golang.org/x/crypto v0.39.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -33,6 +34,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/ethereum/c-kzg-4844/v2 v2.1.0 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -41,6 +43,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -60,7 +63,6 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	golang.org/x/arch v0.18.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
