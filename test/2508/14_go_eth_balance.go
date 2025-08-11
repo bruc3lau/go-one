@@ -55,7 +55,10 @@ func main() {
 	floatBalance := new(big.Float)
 	floatBalance.SetString(balance.String())
 
-	ethValue := new(big.Float).Quo(floatBalance, big.NewFloat(math.Pow10(18)))
+	//ethValue := new(big.Float).Quo(floatBalance, big.NewFloat(math.Pow10(18)))
+	n := new(big.Float)
+	ethValue := n.Quo(floatBalance, big.NewFloat(math.Pow10(18)))
 	fmt.Println(ethValue)
+	fmt.Println(ethValue.Text('g', 10))
 
 }
