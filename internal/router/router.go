@@ -3,10 +3,35 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"time"
 )
+
+// a new middleware to count HTTP requests.
+var httpRequestsTotal = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Total number of HTTP requests",
+	},
+	[]string{"method", "path"},
+)
+
+func init() {
+	prometheus.MustRegister(httpRequestsTotal)
+}
+
+func prometheusMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		duration := time.Since(start)
+		httpRequestsTotal.With(prometheus.Labels{"method": c.Request.Method, "path": c.Request.URL.Path}).Inc()
+		fmt.Println(duration)
+	}
+}
 
 // 模拟一个共享变量
 var counter int
@@ -36,6 +61,10 @@ func SetupRouter() *gin.Engine {
 	// 手动添加中间件
 	r.Use(gin.Logger())   // 添加日志中间件
 	r.Use(gin.Recovery()) // 添加恢复中间件
+	r.Use(prometheusMiddleware())
+
+	// 注册 prometheus 路由
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// 路由配置
 	r.GET("/ping", func(c *gin.Context) {
