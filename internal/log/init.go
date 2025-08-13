@@ -8,9 +8,10 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func InitLoggerWithExample() {
+// InitLogger initializes a logger with a multi-handler (file and console)
+// and sets it as the global default logger.
+func InitLogger() (*slog.Logger, *lumberjack.Logger) {
 	// 1. 配置 lumberjack
-	// 这是所有魔法发生的地方
 	logRoller := &lumberjack.Logger{
 		Filename:   "./logs/app.log", // 日志文件的位置
 		MaxSize:    100,              // 每个日志文件的最大大小，单位是 MB
@@ -26,9 +27,16 @@ func InitLoggerWithExample() {
 	// 使用 MultiHandler 组合它们
 	multiHandler := NewMultiHandler(fileHandler, consoleHandler)
 	logger := slog.New(multiHandler)
-	slog.SetDefault(logger)
 
 	// 3. 将 logger 设置为全局默认 logger
+	slog.SetDefault(logger)
+	slog.Info("日志系统初始化成功", "log_file", logRoller.Filename)
+
+	return logger, logRoller
+}
+
+func InitLoggerWithExample() {
+	logger, logRoller := InitLogger()
 	slog.SetDefault(logger)
 
 	slog.Info("日志系统初始化成功", "log_file", logRoller.Filename)

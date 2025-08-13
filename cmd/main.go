@@ -12,7 +12,8 @@ func main() {
 	//}
 
 	//初始化日志系统
-	log.InitLoggerWithExample()
+	//log.InitLoggerWithExample()
+	log.InitLogger()
 
 	r := router.SetupRouter()
 	err := r.Run(":8080")
