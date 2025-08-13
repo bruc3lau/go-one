@@ -2,12 +2,13 @@ package router
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // a new middleware to count HTTP requests.
@@ -111,5 +112,22 @@ func SetupRouter() *gin.Engine {
 		})
 	})
 
+	r.GET("/getUser", func(c *gin.Context) {
+		user := &UserInfo{}
+		if err := c.ShouldBind(&user); err == nil {
+			c.JSON(http.StatusOK, user)
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				//"code":    500,
+				"message": err.Error(),
+			})
+		}
+	})
+
 	return r
+}
+
+type UserInfo struct {
+	ID       int64  `json:"id" form:"id"`
+	UserName string `json:"user_name" form:"user_name"`
 }
