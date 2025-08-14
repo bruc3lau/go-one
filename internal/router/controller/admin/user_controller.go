@@ -12,11 +12,14 @@ type UserInfo struct {
 }
 
 type UserController struct {
+	BaseController
 }
 
 func (u UserController) Add(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "success"})
+	//c.JSON(http.StatusOK, gin.H{"message": "success"})
+	u.success(c)
 }
+
 func (u UserController) Get(c *gin.Context) {
 	user := &UserInfo{}
 	if err := c.ShouldBind(&user); err == nil {
