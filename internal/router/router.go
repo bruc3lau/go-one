@@ -2,8 +2,6 @@ package router
 
 import (
 	"fmt"
-	"go-one/internal/log"
-	"io"
 	"log/slog"
 	"os"
 	"strings"
@@ -73,20 +71,21 @@ func (w *logWriter) Write(p []byte) (n int, err error) {
 
 func SetupRouter() *gin.Engine {
 	// 初始化 slog logger
-	logger, _ := log.InitLogger()
+	//logger, _ := log.InitLogger()
 
 	// 使用 gin.New() 替代 gin.Default()
 	r := gin.New()
 
 	// 创建一个 writer，将 gin 的日志写入 slog
-	writer := &logWriter{logger: logger}
-
+	//writer := &logWriter{logger: logger}
 	// 手动添加中间件
 	// 使用 LoggerWithConfig 并将输出重定向到 slog
-	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
-		Output:    io.MultiWriter(writer, os.Stdout), // 同时输出到 slog 和标准输出
-		SkipPaths: []string{"/metrics"},              // 可选：跳过特定路径的日志
-	}))
+	//r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+	//	Output:    io.MultiWriter(writer, os.Stdout), // 同时输出到 slog 和标准输出
+	//	SkipPaths: []string{"/metrics"},              // 可选：跳过特定路径的日志
+	//}))
+
+	r.Use(gin.Logger())   // 添加日志中间件
 	r.Use(gin.Recovery()) // 添加恢复中间件
 	r.Use(prometheusMiddleware())
 

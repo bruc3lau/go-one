@@ -1,7 +1,9 @@
 package router
 
 import (
+	"fmt"
 	"go-one/internal/router/controller/admin"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +40,18 @@ func UserInit(r *gin.Engine) {
 		//})
 
 		userRouter.GET("/get", admin.UserController{}.Get)
-		userRouter.GET("/add", admin.UserController{}.Add)
+		userRouter.GET("/add", initMiddleware, admin.UserController{}.Add)
 	}
 
+}
+
+func initMiddleware(c *gin.Context) {
+	//fmt.Println("initMiddleware", c.FullPath())
+	fmt.Println("before Middleware")
+	begin := time.Now()
+	c.Next()
+	after := time.Now()
+	fmt.Println("after Middleware")
+	duration := after.Sub(begin)
+	fmt.Println("duration: ", duration)
 }

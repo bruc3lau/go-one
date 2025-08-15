@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ type UserController struct {
 
 func (u UserController) Add(c *gin.Context) {
 	//c.JSON(http.StatusOK, gin.H{"message": "success"})
+	fmt.Println("Add success")
 	u.success(c)
 }
 
