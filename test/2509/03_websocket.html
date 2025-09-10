@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple WebSocket Client</title>
+</head>
+<body>
+<h1>WebSocket Echo Test</h1>
+<input id="messageInput" type="text" size="50" value="Hello, WebSocket!">
+<button onclick="sendMessage()">Send Message</button>
+<div id="messages"></div>
+
+<script>
+    // 连接到你在 Go 中创建的 /ws 端点。
+    var ws = new WebSocket("ws://localhost:8080/ws");
+    var messagesDiv = document.getElementById('messages');
+
+    // 当连接成功建立时触发。
+    ws.onopen = function(event) {
+        console.log("Connection open...");
+        messagesDiv.innerHTML += "<p>Status: Connected</p>";
+    };
+
+    // 当从服务器接收到消息时触发。
+    ws.onmessage = function(event) {
+        console.log("Received: " + event.data);
+        messagesDiv.innerHTML += "<p>Received: " + event.data + "</p>";
+    };
+
+    // 当连接关闭时触发。
+    ws.onclose = function(event) {
+        console.log("Connection closed.");
+        messagesDiv.innerHTML += "<p>Status: Disconnected</p>";
+    };
+
+    // 当发生错误时触发。
+    ws.onerror = function(event) {
+        console.error("WebSocket error observed:", event);
+    };
+
+    // 通过点击按钮发送消息。
+    function sendMessage() {
+        var message = document.getElementById('messageInput').value;
+        ws.send(message);
+        messagesDiv.innerHTML += "<p>Sent: " + message + "</p>";
+    }
+</script>
+</body>
+</html>
