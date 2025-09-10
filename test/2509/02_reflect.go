@@ -47,8 +47,7 @@ func main() {
 	// 现在可以安全地使用反射
 	t := reflect.TypeOf(b)
 	if t.Kind() == reflect.Ptr {
-		field, ok := t.Elem().FieldByName("Name")
-		if ok {
+		if field, ok := t.Elem().FieldByName("Name"); ok {
 			fmt.Printf("Field: %+v\n", field)
 		}
 	}
