@@ -3,3 +3,6 @@ build
 vendor
 .*
 logs/
+
+config.yaml
+*.db
