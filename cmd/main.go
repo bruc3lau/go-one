@@ -3,9 +3,16 @@ package main
 import (
 	"go-one/internal/log"
 	"go-one/internal/router"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 func main() {
+
+	go func() {
+		http.ListenAndServe("0.0.0.0:6060", nil)
+	}()
+
 	// 初始化数据库连接
 	//if err := database.InitDB(); err != nil {
 	//	log.Fatalf("数据库初始化失败: %v", err)
