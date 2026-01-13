@@ -16,7 +16,7 @@ func main() {
 // 创建一个缓冲为 100 的 Channel 作为信号量
 var limit = make(chan struct{}, 100)
 
-func ProcessRequest(r Request) {
+func pu(r Request) {
 	// 1. 申请令牌（如果满了会阻塞，达到限流效果）
 	limit <- struct{}{}
 
